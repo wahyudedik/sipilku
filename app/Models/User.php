@@ -116,6 +116,36 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\NotificationPreference::class);
     }
 
+    public function calculations()
+    {
+        return $this->hasMany(Calculation::class);
+    }
+
+    public function stores()
+    {
+        return $this->hasMany(Store::class);
+    }
+
+    public function factories()
+    {
+        return $this->hasMany(Factory::class);
+    }
+
+    public function umkms()
+    {
+        return $this->hasMany(Umkm::class);
+    }
+
+    public function storeReviews()
+    {
+        return $this->hasMany(StoreReview::class);
+    }
+
+    public function factoryReviews()
+    {
+        return $this->hasMany(FactoryReview::class);
+    }
+
     // Helper methods
     public function isBuyer(): bool
     {

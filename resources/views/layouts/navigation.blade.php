@@ -11,14 +11,17 @@
                 </div>
 
                 <!-- Navigation Links -->
+                @auth
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+                @endauth
             </div>
-
+            
             <!-- Settings Dropdown -->
+            @auth
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
@@ -51,6 +54,14 @@
                     </x-slot>
                 </x-dropdown>
             </div>
+            @else
+            <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <a href="{{ route('login') }}" class="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100">Log in</a>
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="ms-4 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100">Register</a>
+                @endif
+            </div>
+            @endauth
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
@@ -66,6 +77,7 @@
 
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+        @auth
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
@@ -96,5 +108,17 @@
                 </form>
             </div>
         </div>
+        @else
+        <div class="pt-2 pb-3 space-y-1">
+            <a href="{{ route('login') }}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition duration-150 ease-in-out">
+                {{ __('Log in') }}
+            </a>
+            @if (Route::has('register'))
+                <a href="{{ route('register') }}" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 transition duration-150 ease-in-out">
+                    {{ __('Register') }}
+                </a>
+            @endif
+        </div>
+        @endauth
     </div>
 </nav>

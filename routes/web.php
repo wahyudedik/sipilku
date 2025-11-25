@@ -19,9 +19,7 @@ Route::post('/cart/add/{product}', [\App\Http\Controllers\CartController::class,
 Route::delete('/cart/remove/{product}', [\App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [\App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [\App\Http\Controllers\Buyer\DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -49,6 +47,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/my-quotes', [\App\Http\Controllers\Buyer\QuoteRequestController::class, 'index'])->name('buyer.quote-requests.index');
     Route::get('/my-quotes/{quoteRequest}', [\App\Http\Controllers\Buyer\QuoteRequestController::class, 'show'])->name('buyer.quote-requests.show');
     Route::post('/my-quotes/{quoteRequest}/accept', [\App\Http\Controllers\Buyer\QuoteRequestController::class, 'accept'])->name('buyer.quote-requests.accept');
+
+    // Tools/Calculator Routes
+    Route::get('/tools', [\App\Http\Controllers\ToolsController::class, 'index'])->name('tools.index');
+    Route::get('/tools/rab', [\App\Http\Controllers\ToolsController::class, 'rab'])->name('tools.rab');
+    Route::post('/tools/rab/calculate', [\App\Http\Controllers\ToolsController::class, 'calculateRab'])->name('tools.rab.calculate');
+    Route::get('/tools/volume-material', [\App\Http\Controllers\ToolsController::class, 'volumeMaterial'])->name('tools.volume-material');
+    Route::post('/tools/volume-material/calculate', [\App\Http\Controllers\ToolsController::class, 'calculateVolumeMaterial'])->name('tools.volume-material.calculate');
+    Route::get('/tools/struktur', [\App\Http\Controllers\ToolsController::class, 'struktur'])->name('tools.struktur');
+    Route::post('/tools/struktur/calculate', [\App\Http\Controllers\ToolsController::class, 'calculateStruktur'])->name('tools.struktur.calculate');
+    Route::get('/tools/pondasi', [\App\Http\Controllers\ToolsController::class, 'pondasi'])->name('tools.pondasi');
+    Route::post('/tools/pondasi/calculate', [\App\Http\Controllers\ToolsController::class, 'calculatePondasi'])->name('tools.pondasi.calculate');
+    Route::get('/tools/estimasi-waktu', [\App\Http\Controllers\ToolsController::class, 'estimasiWaktu'])->name('tools.estimasi-waktu');
+    Route::post('/tools/estimasi-waktu/calculate', [\App\Http\Controllers\ToolsController::class, 'calculateEstimasiWaktu'])->name('tools.estimasi-waktu.calculate');
+    Route::get('/tools/overhead-profit', [\App\Http\Controllers\ToolsController::class, 'overheadProfit'])->name('tools.overhead-profit');
+    Route::post('/tools/overhead-profit/calculate', [\App\Http\Controllers\ToolsController::class, 'calculateOverheadProfit'])->name('tools.overhead-profit.calculate');
+    Route::post('/tools/save', [\App\Http\Controllers\ToolsController::class, 'save'])->name('tools.save');
+    Route::get('/tools/history', [\App\Http\Controllers\ToolsController::class, 'history'])->name('tools.history');
+    Route::get('/tools/{calculation}', [\App\Http\Controllers\ToolsController::class, 'show'])->name('tools.show');
+    Route::delete('/tools/{calculation}', [\App\Http\Controllers\ToolsController::class, 'destroy'])->name('tools.destroy');
     Route::post('/my-quotes/{quoteRequest}/reject', [\App\Http\Controllers\Buyer\QuoteRequestController::class, 'reject'])->name('buyer.quote-requests.reject');
     Route::get('/my-quotes/compare', [\App\Http\Controllers\Buyer\QuoteRequestController::class, 'compare'])->name('buyer.quote-requests.compare');
 
@@ -87,6 +104,7 @@ Route::post('/balance/callback', [\App\Http\Controllers\BalanceController::class
 
     // Seller Routes
 Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(function () {
+    Route::get('dashboard', [\App\Http\Controllers\Seller\DashboardController::class, 'index'])->name('dashboard');
     Route::resource('products', \App\Http\Controllers\Seller\ProductController::class);
     Route::resource('services', \App\Http\Controllers\Seller\ServiceController::class);
     
@@ -105,10 +123,20 @@ Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    
+    // User Management
+    Route::resource('users', \App\Http\Controllers\Admin\UserController::class)->except(['create', 'store']);
+    Route::post('users/{user}/approve-seller', [\App\Http\Controllers\Admin\UserController::class, 'approveSeller'])->name('users.approve-seller');
+    Route::post('users/{user}/reject-seller', [\App\Http\Controllers\Admin\UserController::class, 'rejectSeller'])->name('users.reject-seller');
+    Route::post('users/{user}/activate', [\App\Http\Controllers\Admin\UserController::class, 'activate'])->name('users.activate');
+    Route::post('users/{user}/deactivate', [\App\Http\Controllers\Admin\UserController::class, 'deactivate'])->name('users.deactivate');
+    
     Route::get('products', [\App\Http\Controllers\Admin\ProductController::class, 'index'])->name('products.index');
     Route::get('products/{product}', [\App\Http\Controllers\Admin\ProductController::class, 'show'])->name('products.show');
     Route::post('products/{product}/approve', [\App\Http\Controllers\Admin\ProductController::class, 'approve'])->name('products.approve');
     Route::post('products/{product}/reject', [\App\Http\Controllers\Admin\ProductController::class, 'reject'])->name('products.reject');
+    Route::post('products/bulk-action', [\App\Http\Controllers\Admin\ProductController::class, 'bulkAction'])->name('products.bulk-action');
     Route::delete('products/{product}', [\App\Http\Controllers\Admin\ProductController::class, 'destroy'])->name('products.destroy');
 
     // Service Management
@@ -116,7 +144,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('services/{service}', [\App\Http\Controllers\Admin\ServiceController::class, 'show'])->name('services.show');
     Route::post('services/{service}/approve', [\App\Http\Controllers\Admin\ServiceController::class, 'approve'])->name('services.approve');
     Route::post('services/{service}/reject', [\App\Http\Controllers\Admin\ServiceController::class, 'reject'])->name('services.reject');
+    Route::post('services/bulk-action', [\App\Http\Controllers\Admin\ServiceController::class, 'bulkAction'])->name('services.bulk-action');
     Route::delete('services/{service}', [\App\Http\Controllers\Admin\ServiceController::class, 'destroy'])->name('services.destroy');
+    
+    // Category Management
+    Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class);
+    
+    // Landing Page Builder
+    Route::get('landing-page', [\App\Http\Controllers\Admin\LandingPageController::class, 'index'])->name('landing-page.index');
+    Route::get('landing-page/edit', [\App\Http\Controllers\Admin\LandingPageController::class, 'edit'])->name('landing-page.edit');
+    Route::post('landing-page', [\App\Http\Controllers\Admin\LandingPageController::class, 'update'])->name('landing-page.update');
 
     // Order Management
     Route::get('orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');

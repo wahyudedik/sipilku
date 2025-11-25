@@ -1,3 +1,8 @@
+@php
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+@endphp
+
 <x-app-with-sidebar>
     <x-slot name="header">
         <div class="flex justify-between items-center">
@@ -39,10 +44,39 @@
     </x-card>
 
     @if($products->count() > 0)
+        <!-- Bulk Actions -->
+        <x-card class="mb-6">
+            <form id="bulkActionForm" action="{{ route('admin.products.bulk-action') }}" method="POST">
+                @csrf
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex-1 min-w-[200px]">
+                        <select name="action" id="bulkAction" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500" required>
+                            <option value="">Pilih Aksi</option>
+                            <option value="approve">Setujui</option>
+                            <option value="reject">Tolak</option>
+                            <option value="delete">Hapus</option>
+                        </select>
+                    </div>
+                    <div id="rejectionReasonContainer" class="hidden flex-1 min-w-[200px]">
+                        <input type="text" name="rejection_reason" placeholder="Alasan penolakan..." 
+                               class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500">
+                    </div>
+                    <x-button variant="primary" size="md" type="submit" id="bulkActionBtn" disabled>
+                        Terapkan ke Item Terpilih
+                    </x-button>
+                    <span id="selectedCount" class="text-sm text-gray-600 dark:text-gray-400">0 item dipilih</span>
+                </div>
+            </form>
+        </x-card>
+
         <div class="grid grid-cols-1 gap-4">
             @foreach($products as $product)
                 <x-card>
                     <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 pt-1">
+                            <input type="checkbox" name="product_ids[]" value="{{ $product->id }}" 
+                                   class="product-checkbox rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                        </div>
                         <!-- Preview Image -->
                         <div class="flex-shrink-0">
                             @if($product->preview_image)
@@ -180,6 +214,68 @@
 
     @push('scripts')
     <script>
+        // Bulk Actions
+        const checkboxes = document.querySelectorAll('.product-checkbox');
+        const bulkAction = document.getElementById('bulkAction');
+        const bulkActionBtn = document.getElementById('bulkActionBtn');
+        const selectedCount = document.getElementById('selectedCount');
+        const rejectionReasonContainer = document.getElementById('rejectionReasonContainer');
+
+        function updateBulkAction() {
+            const checked = document.querySelectorAll('.product-checkbox:checked');
+            const count = checked.length;
+            selectedCount.textContent = count + ' item dipilih';
+            bulkActionBtn.disabled = count === 0 || !bulkAction.value;
+
+            if (bulkAction.value === 'reject') {
+                rejectionReasonContainer.classList.remove('hidden');
+                if (count > 0) {
+                    document.querySelector('input[name="rejection_reason"]').required = true;
+                }
+            } else {
+                rejectionReasonContainer.classList.add('hidden');
+                document.querySelector('input[name="rejection_reason"]').required = false;
+            }
+        }
+
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateBulkAction);
+        });
+
+        bulkAction.addEventListener('change', updateBulkAction);
+
+        document.getElementById('bulkActionForm').addEventListener('submit', function(e) {
+            const checked = document.querySelectorAll('.product-checkbox:checked');
+            if (checked.length === 0) {
+                e.preventDefault();
+                alert('Pilih minimal 1 produk');
+                return false;
+            }
+
+            checked.forEach(checkbox => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'product_ids[]';
+                input.value = checkbox.value;
+                this.appendChild(input);
+            });
+
+            const action = bulkAction.value;
+            let confirmMsg = '';
+            if (action === 'approve') {
+                confirmMsg = `Setujui ${checked.length} produk?`;
+            } else if (action === 'reject') {
+                confirmMsg = `Tolak ${checked.length} produk?`;
+            } else if (action === 'delete') {
+                confirmMsg = `Hapus permanen ${checked.length} produk? Tindakan ini tidak dapat dibatalkan!`;
+            }
+
+            if (!confirm(confirmMsg)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
         function showRejectModal(productId, productTitle) {
             document.getElementById('rejectProductTitle').textContent = 'Produk: ' + productTitle;
             document.getElementById('rejectForm').action = '{{ route("admin.products.reject", ":id") }}'.replace(':id', productId);

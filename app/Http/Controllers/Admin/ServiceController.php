@@ -111,4 +111,77 @@ class ServiceController extends Controller
         return redirect()->route('admin.services.index')
             ->with('success', 'Jasa berhasil dihapus permanen.');
     }
+
+    /**
+     * Bulk actions for services.
+     */
+    public function bulkAction(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'action' => ['required', 'string', 'in:approve,reject,delete'],
+            'service_ids' => ['required', 'array', 'min:1'],
+            'service_ids.*' => ['exists:services,id'],
+            'rejection_reason' => ['required_if:action,reject', 'string', 'max:500'],
+        ]);
+
+        $serviceIds = $request->service_ids;
+        $action = $request->action;
+        $count = 0;
+
+        foreach ($serviceIds as $serviceId) {
+            $service = Service::find($serviceId);
+            if (!$service) continue;
+
+            switch ($action) {
+                case 'approve':
+                    $service->update([
+                        'status' => 'approved',
+                        'approved_at' => now(),
+                        'rejection_reason' => null,
+                    ]);
+                    $service->user->notify(new ServiceApprovedNotification($service, true));
+                    $count++;
+                    break;
+
+                case 'reject':
+                    $service->update([
+                        'status' => 'rejected',
+                        'rejection_reason' => $request->rejection_reason,
+                    ]);
+                    $service->user->notify(new ServiceApprovedNotification($service, false));
+                    $count++;
+                    break;
+
+                case 'delete':
+                    // Delete files
+                    if ($service->preview_image) {
+                        \Storage::disk('public')->delete($service->preview_image);
+                    }
+                    if ($service->gallery_images) {
+                        foreach ($service->gallery_images as $image) {
+                            \Storage::disk('public')->delete($image);
+                        }
+                    }
+                    if ($service->portfolio) {
+                        foreach ($service->portfolio as $portfolio) {
+                            if (isset($portfolio['image'])) {
+                                \Storage::disk('public')->delete($portfolio['image']);
+                            }
+                        }
+                    }
+                    $service->forceDelete();
+                    $count++;
+                    break;
+            }
+        }
+
+        $messages = [
+            'approve' => "{$count} jasa berhasil disetujui.",
+            'reject' => "{$count} jasa berhasil ditolak.",
+            'delete' => "{$count} jasa berhasil dihapus.",
+        ];
+
+        return redirect()->route('admin.services.index')
+            ->with('success', $messages[$action] ?? 'Aksi berhasil dilakukan.');
+    }
 }

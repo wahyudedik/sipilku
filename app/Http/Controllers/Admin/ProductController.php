@@ -108,4 +108,73 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')
             ->with('success', 'Produk berhasil dihapus permanen.');
     }
+
+    /**
+     * Bulk actions for products.
+     */
+    public function bulkAction(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'action' => ['required', 'string', 'in:approve,reject,delete'],
+            'product_ids' => ['required', 'array', 'min:1'],
+            'product_ids.*' => ['exists:products,id'],
+            'rejection_reason' => ['required_if:action,reject', 'string', 'max:500'],
+        ]);
+
+        $productIds = $request->product_ids;
+        $action = $request->action;
+        $count = 0;
+
+        foreach ($productIds as $productId) {
+            $product = Product::find($productId);
+            if (!$product) continue;
+
+            switch ($action) {
+                case 'approve':
+                    $product->update([
+                        'status' => 'approved',
+                        'approved_at' => now(),
+                        'rejection_reason' => null,
+                    ]);
+                    $product->user->notify(new ProductApprovedNotification($product, true));
+                    $count++;
+                    break;
+
+                case 'reject':
+                    $product->update([
+                        'status' => 'rejected',
+                        'rejection_reason' => $request->rejection_reason,
+                    ]);
+                    $product->user->notify(new ProductApprovedNotification($product, false));
+                    $count++;
+                    break;
+
+                case 'delete':
+                    // Delete files
+                    if ($product->preview_image) {
+                        \Storage::disk('public')->delete($product->preview_image);
+                    }
+                    if ($product->gallery_images) {
+                        foreach ($product->gallery_images as $image) {
+                            \Storage::disk('public')->delete($image);
+                        }
+                    }
+                    if ($product->file_path) {
+                        \Storage::disk('public')->delete($product->file_path);
+                    }
+                    $product->forceDelete();
+                    $count++;
+                    break;
+            }
+        }
+
+        $messages = [
+            'approve' => "{$count} produk berhasil disetujui.",
+            'reject' => "{$count} produk berhasil ditolak.",
+            'delete' => "{$count} produk berhasil dihapus.",
+        ];
+
+        return redirect()->route('admin.products.index')
+            ->with('success', $messages[$action] ?? 'Aksi berhasil dilakukan.');
+    }
 }
