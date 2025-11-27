@@ -14,17 +14,13 @@
                 <nav class="flex-1 px-2 space-y-1">
                     <!-- Dashboard -->
                     <x-sidebar-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
+                        <x-icon name="home" class="w-5 h-5" />
                         <span>Dashboard</span>
                     </x-sidebar-link>
 
                     <!-- Tools -->
                     <x-sidebar-link :href="route('tools.index')" :active="request()->routeIs('tools.*')">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-5m-6 5h6m-6 0h-2a2 2 0 01-2-2V9a2 2 0 012-2h2m6 0h2a2 2 0 012 2v11a2 2 0 01-2 2h-2m-6-13V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                        </svg>
+                        <x-icon name="tool" class="w-5 h-5" />
                         <span>Tools</span>
                     </x-sidebar-link>
 
@@ -32,45 +28,31 @@
                         @if(auth()->user()->isBuyer())
                             <!-- Buyer Menu -->
                             <x-sidebar-link href="#" :active="request()->routeIs('products.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                </svg>
+                                <x-icon name="package" class="w-5 h-5" />
                                 <span>Produk</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('services.index')" :active="request()->routeIs('services.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
+                                <x-icon name="briefcase" class="w-5 h-5" />
                                 <span>Jasa</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('buyer.quote-requests.index')" :active="request()->routeIs('buyer.quote-requests.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                                </svg>
+                                <x-icon name="message-circle" class="w-5 h-5" />
                                 <span>Quote Saya</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('messages.index')" :active="request()->routeIs('messages.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
+                                <x-icon name="message" class="w-5 h-5" />
                                 <span>Pesan</span>
                             </x-sidebar-link>
                             <x-sidebar-link href="#" :active="request()->routeIs('orders.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                </svg>
+                                <x-icon name="shopping-bag" class="w-5 h-5" />
                                 <span>Pesanan Saya</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('balance.index')" :active="request()->routeIs('balance.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <x-icon name="wallet" class="w-5 h-5" />
                                 <span>Saldo Saya</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('payments.history')" :active="request()->routeIs('payments.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
+                                <x-icon name="file-invoice" class="w-5 h-5" />
                                 <span>Riwayat Pembayaran</span>
                             </x-sidebar-link>
                         @endif
@@ -78,45 +60,31 @@
                         @if(auth()->user()->isSeller())
                             <!-- Seller Menu -->
                             <x-sidebar-link :href="route('seller.dashboard')" :active="request()->routeIs('seller.dashboard')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                </svg>
+                                <x-icon name="home" class="w-5 h-5" />
                                 <span>Dashboard</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('seller.products.index')" :active="request()->routeIs('seller.products.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                </svg>
+                                <x-icon name="package" class="w-5 h-5" />
                                 <span>Produk Saya</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('seller.services.index')" :active="request()->routeIs('seller.services.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
+                                <x-icon name="briefcase" class="w-5 h-5" />
                                 <span>Jasa Saya</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('seller.quote-requests.index')" :active="request()->routeIs('seller.quote-requests.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                                </svg>
+                                <x-icon name="message-circle" class="w-5 h-5" />
                                 <span>Quote Requests</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('seller.commissions.index')" :active="request()->routeIs('seller.commissions.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                <x-icon name="currency-dollar" class="w-5 h-5" />
                                 <span>Komisi & Penghasilan</span>
                             </x-sidebar-link>
                             <x-sidebar-link href="#" :active="request()->routeIs('seller.orders.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                </svg>
+                                <x-icon name="shopping-bag" class="w-5 h-5" />
                                 <span>Pesanan</span>
                             </x-sidebar-link>
                             <x-sidebar-link href="#" :active="request()->routeIs('seller.withdrawals.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
+                                <x-icon name="credit-card" class="w-5 h-5" />
                                 <span>Penarikan</span>
                             </x-sidebar-link>
                         @endif
@@ -124,66 +92,42 @@
                         @if(auth()->user()->isAdmin())
                             <!-- Admin Menu -->
                             <x-sidebar-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                </svg>
+                                <x-icon name="home" class="w-5 h-5" />
                                 <span>Dashboard</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
+                                <x-icon name="users" class="w-5 h-5" />
                                 <span>User Management</span>
                             </x-sidebar-link>
-                            <x-sidebar-link href="#" :active="request()->routeIs('admin.users.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                                <span>Users</span>
-                            </x-sidebar-link>
                             <x-sidebar-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                </svg>
+                                <x-icon name="package" class="w-5 h-5" />
                                 <span>Produk</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('admin.services.index')" :active="request()->routeIs('admin.services.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
+                                <x-icon name="briefcase" class="w-5 h-5" />
                                 <span>Jasa</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                </svg>
+                                <x-icon name="shopping-bag" class="w-5 h-5" />
                                 <span>Pesanan</span>
                             </x-sidebar-link>
                             <x-sidebar-link href="#" :active="request()->routeIs('admin.transactions.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                </svg>
+                                <x-icon name="clipboard" class="w-5 h-5" />
                                 <span>Transaksi</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                </svg>
+                                <x-icon name="tag" class="w-5 h-5" />
                                 <span>Kategori</span>
                             </x-sidebar-link>
                             <x-sidebar-link :href="route('admin.landing-page.index')" :active="request()->routeIs('admin.landing-page.*')">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-                                </svg>
+                                <x-icon name="layout-dashboard" class="w-5 h-5" />
                                 <span>Landing Page</span>
                             </x-sidebar-link>
                         @endif
 
                         <!-- Common Menu -->
                         <x-sidebar-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
+                            <x-icon name="user" class="w-5 h-5" />
                             <span>Profile</span>
                         </x-sidebar-link>
                     @endauth

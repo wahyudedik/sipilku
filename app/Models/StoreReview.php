@@ -6,6 +6,7 @@ use App\Models\Concerns\GeneratesUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StoreReview extends Model
@@ -48,5 +49,22 @@ class StoreReview extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function helpfulVotes(): HasMany
+    {
+        return $this->hasMany(StoreReviewHelpfulVote::class);
+    }
+
+    /**
+     * Check if a user has marked this review as helpful.
+     */
+    public function isMarkedHelpfulBy(?int $userId): bool
+    {
+        if (!$userId) {
+            return false;
+        }
+
+        return $this->helpfulVotes()->where('user_id', $userId)->exists();
     }
 }

@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\EnsureUserHasRole::class,
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
             'seller' => \App\Http\Middleware\EnsureUserIsSeller::class,
+            'store.owner' => \App\Http\Middleware\EnsureUserIsStoreOwner::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

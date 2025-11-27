@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Service;
+use App\Services\FactoryRecommendationService;
+use App\Services\StoreRecommendationService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -67,7 +69,7 @@ class ServiceController extends Controller
     /**
      * Display the specified service.
      */
-    public function show(Service $service): View
+    public function show(Request $request, Service $service): View
     {
         // Only show approved services
         if ($service->status !== 'approved') {
@@ -87,6 +89,29 @@ class ServiceController extends Controller
             ->limit(4)
             ->get();
 
-        return view('services.show', compact('service', 'relatedServices'));
+        // Get recommendations for stores and factories if location is provided
+        $storeRecommendations = collect();
+        $factoryRecommendations = collect();
+        
+        if ($request->has('latitude') && $request->has('longitude')) {
+            $storeService = new StoreRecommendationService();
+            $storeRecommendations = $storeService->getRecommendations(
+                $request->latitude,
+                $request->longitude,
+                6,
+                50
+            );
+
+            $factoryService = new FactoryRecommendationService();
+            // Get recommendations for all factory types
+            $factoryRecommendations = $factoryService->getRecommendations(
+                $request->latitude,
+                $request->longitude,
+                9, // Show more to include different factory types
+                100
+            );
+        }
+
+        return view('services.show', compact('service', 'relatedServices', 'storeRecommendations', 'factoryRecommendations'));
     }
 }

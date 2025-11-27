@@ -16,6 +16,8 @@ class Message extends Model
         'sender_id',
         'receiver_id',
         'order_id',
+        'material_request_id',
+        'factory_request_id',
         'message',
         'attachments',
         'is_read',
@@ -53,5 +55,15 @@ class Message extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function materialRequest(): BelongsTo
+    {
+        return $this->belongsTo(MaterialRequest::class);
+    }
+
+    public function factoryRequest(): BelongsTo
+    {
+        return $this->belongsTo(FactoryRequest::class);
     }
 }

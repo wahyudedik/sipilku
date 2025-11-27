@@ -146,6 +146,21 @@ class User extends Authenticatable
         return $this->hasMany(FactoryReview::class);
     }
 
+    public function projectLocations()
+    {
+        return $this->hasMany(ProjectLocation::class);
+    }
+
+    public function materialRequests()
+    {
+        return $this->hasMany(MaterialRequest::class);
+    }
+
+    public function factoryRequests()
+    {
+        return $this->hasMany(FactoryRequest::class);
+    }
+
     // Helper methods
     public function isBuyer(): bool
     {
@@ -160,5 +175,21 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->hasRole('admin');
+    }
+
+    public function isStoreOwner(): bool
+    {
+        // User is a store owner if they have at least one store
+        return $this->stores()->exists();
+    }
+
+    public function hasActiveStore(): bool
+    {
+        // User has an active and verified store
+        return $this->stores()
+            ->where('is_active', true)
+            ->where('is_verified', true)
+            ->where('status', 'approved')
+            ->exists();
     }
 }

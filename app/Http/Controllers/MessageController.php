@@ -20,7 +20,7 @@ class MessageController extends Controller
     /**
      * Display chat interface with a specific user.
      */
-    public function chat(User $user, ?Order $order = null): View
+    public function chat(User $user, ?Order $order = null, ?\App\Models\MaterialRequest $materialRequest = null, ?\App\Models\FactoryRequest $factoryRequest = null): View
     {
         // Get conversation messages
         $messages = Message::where(function($query) use ($user) {
@@ -33,6 +33,12 @@ class MessageController extends Controller
         ->when($order, function($query) use ($order) {
             $query->where('order_id', $order->id);
         })
+        ->when($materialRequest, function($query) use ($materialRequest) {
+            $query->where('material_request_id', $materialRequest->uuid);
+        })
+        ->when($factoryRequest, function($query) use ($factoryRequest) {
+            $query->where('factory_request_id', $factoryRequest->uuid);
+        })
         ->with(['sender', 'receiver'])
         ->orderBy('created_at', 'asc')
         ->get();
@@ -43,7 +49,7 @@ class MessageController extends Controller
             ->where('is_read', false)
             ->update(['is_read' => true, 'read_at' => now()]);
 
-        return view('messages.chat', compact('user', 'messages', 'order'));
+        return view('messages.chat', compact('user', 'messages', 'order', 'materialRequest', 'factoryRequest'));
     }
 
     /**
@@ -121,6 +127,8 @@ class MessageController extends Controller
             'sender_id' => Auth::id(),
             'receiver_id' => $data['receiver_id'],
             'order_id' => $data['order_id'] ?? null,
+            'material_request_id' => $data['material_request_id'] ?? null,
+            'factory_request_id' => $data['factory_request_id'] ?? null,
             'message' => $data['message'],
             'attachments' => !empty($attachments) ? $attachments : null,
             'is_read' => false,

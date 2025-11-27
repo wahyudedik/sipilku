@@ -6,6 +6,7 @@ use App\Models\Concerns\GeneratesUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class FactoryProduct extends Model
@@ -19,6 +20,7 @@ class FactoryProduct extends Model
         'description',
         'sku',
         'code',
+        'product_category',
         'price',
         'discount_price',
         'unit',
@@ -61,6 +63,11 @@ class FactoryProduct extends Model
     public function factory(): BelongsTo
     {
         return $this->belongsTo(Factory::class);
+    }
+
+    public function priceHistory(): HasMany
+    {
+        return $this->hasMany(FactoryProductPriceHistory::class);
     }
 
     // Helper methods

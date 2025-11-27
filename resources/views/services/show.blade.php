@@ -236,6 +236,19 @@
                         @endif
                     </x-card>
 
+                    <!-- Recommended Stores Widget -->
+                    @if(isset($storeRecommendations) && $storeRecommendations->count() > 0)
+                        <x-recommended-stores-widget :recommendations="$storeRecommendations" />
+                    @endif
+
+                    <!-- Recommended Factories Widget -->
+                    @if(isset($factoryRecommendations) && $factoryRecommendations->count() > 0)
+                        <x-recommended-factories-widget 
+                            :recommendations="$factoryRecommendations" 
+                            title="Rekomendasi Pabrik Terdekat"
+                            :showViewAll="true" />
+                    @endif
+
                     <!-- Related Services -->
                     @if($relatedServices->count() > 0)
                         <x-card class="mt-6">

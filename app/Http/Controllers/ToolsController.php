@@ -46,22 +46,56 @@ class ToolsController extends Controller
             'items.*.name' => 'required|string',
             'items.*.quantity' => 'required|numeric|min:0',
             'items.*.unit' => 'required|string',
-            'items.*.unit_price' => 'required|numeric|min:0',
+            'items.*.unit_price' => 'nullable|numeric|min:0',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
+            'project_location_id' => 'nullable|exists:project_locations,uuid',
+            'use_integration' => 'nullable|boolean',
         ]);
 
         $items = $request->items;
+        $latitude = $request->latitude;
+        $longitude = $request->longitude;
+        $useIntegration = $request->boolean('use_integration', false);
+
+        // If integration is enabled and location provided, use integrated calculation
+        if ($useIntegration && $latitude && $longitude) {
+            $service = app(\App\Services\RabCalculatorService::class);
+            $result = $service->calculateWithIntegration(
+                $items,
+                $latitude,
+                $longitude,
+                $request->project_location_id
+            );
+
+            return response()->json([
+                'success' => true,
+                'items' => $result['items'],
+                'total' => $result['total_cost'],
+                'subtotal' => $result['subtotal'],
+                'total_delivery_cost' => $result['total_delivery_cost'],
+                'store_items_count' => $result['store_items_count'],
+                'factory_items_count' => $result['factory_items_count'],
+                'recommendations' => $result['recommendations'],
+                'integrated' => true,
+            ]);
+        }
+
+        // Manual calculation (original behavior)
         $total = 0;
         $calculatedItems = [];
 
         foreach ($items as $item) {
-            $subtotal = $item['quantity'] * $item['unit_price'];
+            $unitPrice = $item['unit_price'] ?? 0;
+            $subtotal = $item['quantity'] * $unitPrice;
             $total += $subtotal;
             $calculatedItems[] = [
                 'name' => $item['name'],
                 'quantity' => $item['quantity'],
                 'unit' => $item['unit'],
-                'unit_price' => $item['unit_price'],
+                'unit_price' => $unitPrice,
                 'subtotal' => $subtotal,
+                'source' => 'manual',
             ];
         }
 
@@ -69,6 +103,34 @@ class ToolsController extends Controller
             'success' => true,
             'items' => $calculatedItems,
             'total' => $total,
+            'integrated' => false,
+        ]);
+    }
+
+    /**
+     * Get optimized sourcing options.
+     */
+    public function getOptimizedSourcing(Request $request): JsonResponse
+    {
+        $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.name' => 'required|string',
+            'items.*.quantity' => 'required|numeric|min:0',
+            'items.*.unit' => 'required|string',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+        ]);
+
+        $service = app(\App\Services\RabCalculatorService::class);
+        $options = $service->getOptimizedSourcing(
+            $request->items,
+            $request->latitude,
+            $request->longitude
+        );
+
+        return response()->json([
+            'success' => true,
+            'options' => $options,
         ]);
     }
 

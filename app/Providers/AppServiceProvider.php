@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use App\Models\Product;
 use App\Models\Service;
+use App\Models\StoreProduct;
+use App\Models\FactoryProduct;
+use App\Observers\StoreProductObserver;
+use App\Observers\FactoryProductObserver;
 use App\Policies\ProductPolicy;
 use App\Policies\ServicePolicy;
 use Illuminate\Support\Facades\Gate;
@@ -34,6 +38,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register observers for price history tracking
+        StoreProduct::observe(StoreProductObserver::class);
+        FactoryProduct::observe(FactoryProductObserver::class);
     }
 }

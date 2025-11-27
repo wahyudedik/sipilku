@@ -24,6 +24,8 @@ class StoreMessageRequest extends FormRequest
         return [
             'receiver_id' => ['required', 'exists:users,id'],
             'order_id' => ['nullable', 'exists:orders,id'],
+            'material_request_id' => ['nullable', 'exists:material_requests,uuid'],
+            'factory_request_id' => ['nullable', 'exists:factory_requests,uuid'],
             'message' => ['required_without:attachments', 'string', 'max:5000'],
             'attachments' => ['nullable', 'array', 'max:5'],
             'attachments.*' => ['file', 'max:10240', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar,7z,jpg,jpeg,png,gif,webp,dwg,skp,rvt'],

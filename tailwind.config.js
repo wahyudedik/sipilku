@@ -12,7 +12,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Consolas', 'Courier New', 'monospace'],
             },
             colors: {
                 primary: {

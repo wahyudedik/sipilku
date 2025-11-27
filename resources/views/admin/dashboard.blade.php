@@ -79,8 +79,87 @@
                             Rp {{ number_format(abs($totalRevenue), 0, ',', '.') }}
                         </h3>
                         <div class="flex justify-center space-x-4 mt-2 text-xs">
-                            <span>Komisi: Rp {{ number_format($totalCommissions, 0, ',', '.') }}</span>
+                            <span>Profit: Rp {{ number_format($platformProfit, 0, ',', '.') }}</span>
                         </div>
+                        <a href="{{ route('admin.financial.transactions') }}" class="mt-4 inline-block">
+                            <x-button variant="primary" size="sm">Lihat Transaksi</x-button>
+                        </a>
+                    </div>
+                </x-card>
+            </div>
+
+            <!-- Financial Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <x-card>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Today Revenue</p>
+                        <h3 class="text-2xl font-bold text-green-600 dark:text-green-400">
+                            Rp {{ number_format($todayRevenue, 0, ',', '.') }}
+                        </h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $todayOrders }} orders</p>
+                    </div>
+                </x-card>
+
+                <x-card>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Month Revenue</p>
+                        <h3 class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            Rp {{ number_format($monthRevenue, 0, ',', '.') }}
+                        </h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ $monthOrders }} orders</p>
+                    </div>
+                </x-card>
+
+                <x-card>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Commissions</p>
+                        <h3 class="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                            Rp {{ number_format($totalCommissions, 0, ',', '.') }}
+                        </h3>
+                        <a href="{{ route('admin.financial.commissions') }}" class="text-xs text-primary-600 hover:underline mt-1 inline-block">
+                            Manage Commissions
+                        </a>
+                    </div>
+                </x-card>
+
+                <x-card>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Total Withdrawals</p>
+                        <h3 class="text-2xl font-bold text-red-600 dark:text-red-400">
+                            Rp {{ number_format($totalWithdrawals, 0, ',', '.') }}
+                        </h3>
+                        <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                            {{ $pendingWithdrawals }} pending (Rp {{ number_format($pendingWithdrawalAmount, 0, ',', '.') }})
+                        </p>
+                    </div>
+                </x-card>
+            </div>
+
+            <!-- Store & Factory Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <x-card>
+                    <x-slot name="header">
+                        <h3 class="text-lg font-medium">Store Statistics</h3>
+                    </x-slot>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-primary-600 dark:text-primary-400">{{ $totalStores }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $pendingStores }} pending approval</p>
+                        <a href="{{ route('admin.stores.index') }}" class="mt-4 inline-block">
+                            <x-button variant="primary" size="sm">Manage Stores</x-button>
+                        </a>
+                    </div>
+                </x-card>
+
+                <x-card>
+                    <x-slot name="header">
+                        <h3 class="text-lg font-medium">Factory Statistics</h3>
+                    </x-slot>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-primary-600 dark:text-primary-400">{{ $totalFactories }}</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $pendingFactories }} pending approval</p>
+                        <a href="{{ route('admin.factories.index') }}" class="mt-4 inline-block">
+                            <x-button variant="primary" size="sm">Manage Factories</x-button>
+                        </a>
                     </div>
                 </x-card>
             </div>

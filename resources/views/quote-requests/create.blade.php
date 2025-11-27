@@ -57,6 +57,22 @@
                             <x-text-input name="deadline" type="date" value="{{ old('deadline') }}" min="{{ date('Y-m-d', strtotime('+1 day')) }}" />
                         </x-form-group>
 
+                        <!-- Project Location (Optional) -->
+                        @auth
+                            @if($projectLocations->count() > 0)
+                                <x-form-group label="Lokasi Proyek (Opsional)" name="project_location_id" help="Pilih lokasi proyek untuk mendapatkan rekomendasi toko & pabrik terdekat">
+                                    <select name="project_location_id" id="project_location_id" onchange="updateRecommendations()" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800">
+                                        <option value="">Pilih lokasi proyek</option>
+                                        @foreach($projectLocations as $location)
+                                            <option value="{{ $location->uuid }}" {{ $projectLocation && $projectLocation->uuid === $location->uuid ? 'selected' : '' }}>
+                                                {{ $location->name }} - {{ $location->address }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </x-form-group>
+                            @endif
+                        @endauth
+
                         <!-- Requirements (Dynamic) -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -83,6 +99,125 @@
                     </div>
                 </form>
             </x-card>
+
+            <!-- Store & Factory Recommendations -->
+            @if(isset($recommendations) && ($recommendations['stores']->count() > 0 || $recommendations['factories']->count() > 0))
+                <x-card class="mt-6">
+                    <x-slot name="header">
+                        <h3 class="text-lg font-medium">Rekomendasi Toko & Pabrik Terdekat</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Berdasarkan lokasi proyek Anda
+                        </p>
+                    </x-slot>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @if($recommendations['stores']->count() > 0)
+                            <div>
+                                <h4 class="font-medium mb-3">Toko Terdekat</h4>
+                                <div class="space-y-3">
+                                    @foreach($recommendations['stores'] as $recommendation)
+                                        <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                            <div class="flex items-start justify-between">
+                                                <div class="flex-1">
+                                                    <p class="font-medium text-sm">{{ $recommendation['store']->name }}</p>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                        {{ number_format($recommendation['distance'], 1) }} km
+                                                    </p>
+                                                </div>
+                                                <a href="{{ route('stores.show', $recommendation['store']) }}" class="text-xs text-primary-600 hover:underline">
+                                                    Lihat →
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($recommendations['factories']->count() > 0)
+                            <div>
+                                <h4 class="font-medium mb-3">Pabrik Terdekat</h4>
+                                <div class="space-y-3">
+                                    @foreach($recommendations['factories'] as $recommendation)
+                                        <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                            <div class="flex items-start justify-between">
+                                                <div class="flex-1">
+                                                    <p class="font-medium text-sm">{{ $recommendation['factory']->name }}</p>
+                                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                        {{ $recommendation['factory']->factoryType->name ?? 'Factory' }} • {{ number_format($recommendation['distance'], 1) }} km
+                                                    </p>
+                                                </div>
+                                                <a href="{{ route('factories.show', $recommendation['factory']) }}" class="text-xs text-primary-600 hover:underline">
+                                                    Lihat →
+                                                </a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </x-card>
+            @endif
+
+            <!-- Material Cost Estimates -->
+            @if(isset($materialEstimates) && count($materialEstimates) > 0)
+                <x-card class="mt-6">
+                    <x-slot name="header">
+                        <h3 class="text-lg font-medium">Estimasi Biaya Material</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Estimasi harga material yang mungkin dibutuhkan untuk proyek ini
+                        </p>
+                    </x-slot>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Material</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Harga Toko</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Harga Pabrik</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Rekomendasi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                @foreach($materialEstimates as $estimate)
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm font-medium">{{ ucfirst($estimate['material']) }}</td>
+                                        <td class="px-4 py-3 text-sm">
+                                            @if($estimate['store_price'])
+                                                Rp {{ number_format($estimate['store_price'], 0, ',', '.') }}
+                                                @if($estimate['store_name'])
+                                                    <br><span class="text-xs text-gray-500">{{ $estimate['store_name'] }}</span>
+                                                @endif
+                                            @else
+                                                <span class="text-gray-400">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-sm">
+                                            @if($estimate['factory_price'])
+                                                Rp {{ number_format($estimate['factory_price'], 0, ',', '.') }}
+                                                @if($estimate['factory_name'])
+                                                    <br><span class="text-xs text-gray-500">{{ $estimate['factory_name'] }}</span>
+                                                @endif
+                                            @else
+                                                <span class="text-gray-400">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-sm">
+                                            @if($estimate['recommended_source'])
+                                                <span class="px-2 py-1 bg-{{ $estimate['recommended_source'] === 'store' ? 'blue' : 'green' }}-100 dark:bg-{{ $estimate['recommended_source'] === 'store' ? 'blue' : 'green' }}-900/30 text-{{ $estimate['recommended_source'] === 'store' ? 'blue' : 'green' }}-800 dark:text-{{ $estimate['recommended_source'] === 'store' ? 'blue' : 'green' }}-200 rounded text-xs">
+                                                    {{ $estimate['recommended_source'] === 'store' ? 'Toko' : 'Pabrik' }}
+                                                </span>
+                                            @else
+                                                <span class="text-gray-400">-</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </x-card>
+            @endif
         </div>
     </div>
 
@@ -113,6 +248,16 @@
             const div = document.getElementById(`requirement-${id}`);
             if (div) {
                 div.remove();
+            }
+        }
+
+        function updateRecommendations() {
+            const projectLocationId = document.getElementById('project_location_id')?.value;
+            if (projectLocationId) {
+                // Reload page with project location parameter
+                const url = new URL(window.location.href);
+                url.searchParams.set('project_location', projectLocationId);
+                window.location.href = url.toString();
             }
         }
     </script>

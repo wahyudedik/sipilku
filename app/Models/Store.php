@@ -83,4 +83,14 @@ class Store extends Model
     {
         return $this->hasMany(StoreReview::class)->where('is_approved', true);
     }
+
+    public function views(): HasMany
+    {
+        return $this->hasMany(StoreView::class);
+    }
+
+    public function materialRequests(): HasMany
+    {
+        return $this->hasMany(MaterialRequest::class);
+    }
 }

@@ -29,7 +29,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Seller',
             'email' => 'seller@sipilku.com',
             'is_seller' => true,
-            'is_active' => true,
+            'is_active' => true, 
         ]);
         $seller->assignRole('seller');
 

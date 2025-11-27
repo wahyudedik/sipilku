@@ -19,6 +19,38 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <!-- Integration Options -->
+            @auth
+                <x-card class="mb-6">
+                    <x-slot name="header">
+                        <h3 class="text-lg font-medium">Integrasi Data Toko & Pabrik</h3>
+                    </x-slot>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="useIntegration" name="use_integration" class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                            <label for="useIntegration" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+                                Gunakan harga otomatis dari toko & pabrik
+                            </label>
+                        </div>
+                        <div id="locationFields" class="hidden space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Latitude</label>
+                                    <input type="number" id="latitude" name="latitude" step="0.000001" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800" placeholder="-6.2088">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Longitude</label>
+                                    <input type="number" id="longitude" name="longitude" step="0.000001" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800" placeholder="106.8456">
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                Masukkan koordinat lokasi proyek untuk menghitung biaya delivery dan mendapatkan rekomendasi toko & pabrik terdekat.
+                            </p>
+                        </div>
+                    </div>
+                </x-card>
+            @endauth
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Input Form -->
                 <div class="lg:col-span-2">
@@ -115,7 +147,8 @@
                         </div>
                         <div class="col-span-8 md:col-span-3">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Harga Satuan (Rp)</label>
-                            <input type="number" name="items[${itemIndex}][unit_price]" step="0.01" min="0" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500" placeholder="0" required>
+                            <input type="number" name="items[${itemIndex}][unit_price]" step="0.01" min="0" class="w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 focus:border-primary-500 focus:ring-primary-500" placeholder="0" id="unit_price_${itemIndex}">
+                            <p class="text-xs text-gray-500 mt-1">Kosongkan jika menggunakan integrasi otomatis</p>
                         </div>
                         <div class="col-span-4 md:col-span-1 flex items-end">
                             <button type="button" class="remove-item-btn w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm" ${itemCount === 1 ? 'disabled' : ''}>
@@ -144,10 +177,22 @@
 
             addItemBtn.addEventListener('click', addItem);
 
+            // Toggle location fields
+            const useIntegrationCheckbox = document.getElementById('useIntegration');
+            const locationFields = document.getElementById('locationFields');
+            if (useIntegrationCheckbox) {
+                useIntegrationCheckbox.addEventListener('change', function() {
+                    locationFields.classList.toggle('hidden', !this.checked);
+                });
+            }
+
             calculateBtn.addEventListener('click', function() {
                 const form = document.getElementById('rabForm');
                 const formData = new FormData(form);
                 const items = [];
+                const useIntegration = document.getElementById('useIntegration')?.checked || false;
+                const latitude = document.getElementById('latitude')?.value;
+                const longitude = document.getElementById('longitude')?.value;
 
                 // Collect items
                 const itemInputs = form.querySelectorAll('[name^="items["]');
@@ -164,12 +209,12 @@
 
                 // Convert to array
                 Object.values(itemGroups).forEach(item => {
-                    if (item.name && item.quantity && item.unit && item.unit_price) {
+                    if (item.name && item.quantity && item.unit) {
                         items.push({
                             name: item.name,
                             quantity: parseFloat(item.quantity),
                             unit: item.unit,
-                            unit_price: parseFloat(item.unit_price),
+                            unit_price: item.unit_price ? parseFloat(item.unit_price) : null,
                         });
                     }
                 });
@@ -177,6 +222,17 @@
                 if (items.length === 0) {
                     alert('Minimal 1 item harus diisi');
                     return;
+                }
+
+                // Prepare request data
+                const requestData = {
+                    items: items,
+                    use_integration: useIntegration,
+                };
+
+                if (useIntegration && latitude && longitude) {
+                    requestData.latitude = parseFloat(latitude);
+                    requestData.longitude = parseFloat(longitude);
                 }
 
                 // Calculate
@@ -187,7 +243,7 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json',
                     },
-                    body: JSON.stringify({ items: items })
+                    body: JSON.stringify(requestData)
                 })
                 .then(response => response.json())
                 .then(data => {

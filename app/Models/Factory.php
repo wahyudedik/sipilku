@@ -104,4 +104,14 @@ class Factory extends Model
     {
         return $this->hasMany(FactoryReview::class)->where('is_approved', true);
     }
+
+    public function factoryRequests(): HasMany
+    {
+        return $this->hasMany(FactoryRequest::class);
+    }
+
+    public function views(): HasMany
+    {
+        return $this->hasMany(FactoryView::class);
+    }
 }
